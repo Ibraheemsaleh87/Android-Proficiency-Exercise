@@ -146,6 +146,7 @@ public class FragmentManager {
                     Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
 
                 }
+
                 return buffer.toString();
 
             } catch (MalformedURLException e) {
@@ -189,15 +190,16 @@ public class FragmentManager {
 
         @Override
         protected Bitmap doInBackground(String... params) {
+            HttpURLConnection connection = null;
             try {
                 URL url = new URL(params[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+                connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
                 InputStream stream = connection.getInputStream();
 
                 Bitmap myBitmap = BitmapFactory.decodeStream(stream);
 
-                connection.disconnect();
                 return myBitmap;
 
             } catch (MalformedURLException e) {
@@ -206,8 +208,12 @@ public class FragmentManager {
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                return null;
             }
-            return null;
         }
 
         @Override

@@ -8,8 +8,10 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,25 +33,40 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity implements ImageFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements ImageFragment.OnFragmentInteractionListener, SwipeRefreshLayout.OnRefreshListener {
 
 
-    private Toolbar toolbar;
+    private Toolbar mToolbar;
+    private SwipeRefreshLayout mSwipeLayout;
+    private FragmentManager mFragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
-        FragmentManager fragmentManager  = new FragmentManager(this);
-        fragmentManager.reset();
+        mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        mSwipeLayout.setOnRefreshListener(this);
+        mSwipeLayout.setColorScheme(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+
+        mFragmentManager  = new FragmentManager(this);
+        mFragmentManager.reset();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    public void onRefresh() {
+        mFragmentManager.reset();
+        new Handler().postDelayed(new Runnable() {
+            @Override public void run() {
+                mSwipeLayout.setRefreshing(false);
+            }
+        }, 5000);
     }
 
     @Override
@@ -58,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements ImageFragment.OnF
     }
 
     public void setToolbarTitle(String title) {
-        toolbar.setTitle(title);
+        mToolbar.setTitle(title);
     }
 
 }
